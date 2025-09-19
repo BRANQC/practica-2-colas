@@ -4,6 +4,7 @@ import java.util.Scanner;
 public class Metodos {
     Scanner sc = new Scanner(System.in);
     Queue<ObjCliente> catendido = new java.util.LinkedList<>();
+    Queue<ObjArticulo> inventario = new java.util.LinkedList<>();
     private double totalVentasDia = 0.0;
     private int numeroVentas = 0;
 
@@ -20,7 +21,10 @@ public class Metodos {
             System.out.println("4. Ver clientes Pendientes");
             System.out.println("5. Ver clientes Atendidos");
             System.out.println("6. Total Ventas del Día");
-            System.out.println("7. Salir");
+            System.out.println("7. Ver Inventario Completo");
+            System.out.println("8. Agregar Artículo al Inventario");
+            System.out.println("9. Dar de Baja Artículo");
+            System.out.println("10. Salir");
             System.out.print("Seleccione una opcion: ");
             opt = m.Validarentero(sc);
             sc.nextLine();
@@ -59,6 +63,18 @@ public class Metodos {
                     m.MostrarEstadisticasVentas();
                     break;
                 case 7:
+                    System.out.println("Ver Inventario Completo:");
+                    m.MostrarInventario();
+                    break;
+                case 8:
+                    System.out.println("Agregar Artículo al Inventario:");
+                    m.AgregarArticuloInventario();
+                    break;
+                case 9:
+                    System.out.println("Dar de Baja Artículo:");
+                    m.DarDeBajaArticulo();
+                    break;
+                case 10:
                     System.out.println("Saliendo del menú de turnos.");
                     bandera = false;
                     break;
@@ -109,6 +125,102 @@ public class Metodos {
         System.out.println("=======================================");
     }
 
+    public void MostrarInventario(){
+        if (inventario.isEmpty()) {
+            System.out.println("No hay artículos en el inventario.");
+            return;
+        }
+        
+        System.out.println("=== INVENTARIO COMPLETO ===");
+        int contadorActivos = 0;
+        int contadorInactivos = 0;
+        
+        for (ObjArticulo articulo : inventario) {
+            if (articulo.getEstado() == 0) { // Activo
+                System.out.println("ID: " + articulo.getId());
+                System.out.println("Nombre: " + articulo.getNombre());
+                System.out.println("Categoría: " + articulo.getCategoria());
+                System.out.println("Existencia: " + articulo.getExistencia());
+                System.out.println("Precio: $" + articulo.getPrecio());
+                System.out.println("Estado: ACTIVO");
+                System.out.println("-------------------");
+                contadorActivos++;
+            } else {
+                contadorInactivos++;
+            }
+        }
+        
+        System.out.println("Total artículos activos: " + contadorActivos);
+        System.out.println("Total artículos inactivos: " + contadorInactivos);
+        System.out.println("============================");
+    }
+
+    public void AgregarArticuloInventario(){
+        Metodos m = new Metodos();
+        
+        // Verificar si el ID ya existe
+        System.out.print("Ingrese el ID del artículo: ");
+        int idNuevo = m.Validarentero(sc);
+        sc.nextLine();
+        
+        // Verificar duplicados
+        for (ObjArticulo articulo : inventario) {
+            if (articulo.getId() == idNuevo) {
+                System.out.println("Error: Ya existe un artículo con ID " + idNuevo);
+                return;
+            }
+        }
+        
+        // Crear artículo usando método existente pero con ID predefinido
+        ObjArticulo articulo = new ObjArticulo();
+        articulo.setId(idNuevo);
+        
+        System.out.print("Ingrese el nombre del artículo: ");
+        articulo.setNombre(m.Validarstring(sc));
+        System.out.print("Ingrese la categoría del artículo: ");
+        articulo.setCategoria(m.Validarstring(sc));
+        System.out.print("Ingrese la existencia del artículo: ");
+        articulo.setExistencia(m.Validarstring(sc));
+        System.out.print("Ingrese el precio del artículo: ");
+        articulo.setPrecio(m.Validarentero(sc));
+        articulo.setEstado(0); // Activo por defecto
+        
+        inventario.offer(articulo);
+        System.out.println("Artículo agregado al inventario exitosamente.");
+    }
+
+    public void DarDeBajaArticulo(){
+        if (inventario.isEmpty()) {
+            System.out.println("No hay artículos en el inventario.");
+            return;
+        }
+        
+        Metodos m = new Metodos();
+        System.out.print("Ingrese el ID del artículo a dar de baja: ");
+        int idBuscar = m.Validarentero(sc);
+        
+        boolean encontrado = false;
+        for (ObjArticulo articulo : inventario) {
+            if (articulo.getId() == idBuscar) {
+                if (articulo.getEstado() == 0) { // Si está activo
+                    articulo.setEstado(1); // Cambiar a inactivo
+                    System.out.println("Artículo dado de baja exitosamente:");
+                    System.out.println("ID: " + articulo.getId());
+                    System.out.println("Nombre: " + articulo.getNombre());
+                    System.out.println("Estado: INACTIVO");
+                } else {
+                    System.out.println("El artículo con ID " + idBuscar + " ya está inactivo.");
+                }
+                encontrado = true;
+                break;
+            }
+        }
+        
+        if (!encontrado) {
+            System.out.println("No se encontró un artículo con ID " + idBuscar);
+        }
+    }
+
     public int Validarentero(Scanner sc){
         int num = 0;
         while (!sc.hasNextInt()) {
@@ -144,7 +256,7 @@ public String Validarstring(Scanner sc){
 }
 
     public boolean Validarrango(int num){
-        if (num < 1 || num > 7) {
+        if (num < 1 || num > 10) {
             return false;
         }
         return true;
