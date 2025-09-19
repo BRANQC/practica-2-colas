@@ -4,6 +4,8 @@ import java.util.Scanner;
 public class Metodos {
     Scanner sc = new Scanner(System.in);
     Queue<ObjCliente> catendido = new java.util.LinkedList<>();
+    private double totalVentasDia = 0.0;
+    private int numeroVentas = 0;
 
     public void Menuturnos() {
         Queue<ObjCliente> turno = new java.util.LinkedList<>();
@@ -15,7 +17,10 @@ public class Metodos {
             System.out.println("1. Agregar Turno");
             System.out.println("2. Ver Turnos");
             System.out.println("3. Atender Cliente");
-            System.out.println("4. Salir");
+            System.out.println("4. Ver clientes Pendientes");
+            System.out.println("5. Ver clientes Atendidos");
+            System.out.println("6. Total Ventas del Día");
+            System.out.println("7. Salir");
             System.out.print("Seleccione una opcion: ");
             opt = m.Validarentero(sc);
             sc.nextLine();
@@ -42,6 +47,18 @@ public class Metodos {
                     }
                     break;
                 case 4:
+                    System.out.println("Clientes Pendientes:");
+                    m.Clientespendientes(turno);
+                    break;
+                case 5:
+                    System.out.println("Clientes Atendidos:");
+                    m.Clientesatendidos(catendido);
+                    break;
+                case 6:
+                    System.out.println("Total Ventas del Día:");
+                    m.MostrarEstadisticasVentas();
+                    break;
+                case 7:
                     System.out.println("Saliendo del menú de turnos.");
                     bandera = false;
                     break;
@@ -50,6 +67,46 @@ public class Metodos {
             }
             
         }
+    }
+
+    public void Clientespendientes(Queue<ObjCliente> turno){
+        if (turno.isEmpty()) {
+            System.out.println("No hay clientes pendientes.");
+            return;
+        }
+        System.out.println("Clientes Pendientes:");
+        for (ObjCliente cliente : turno) {
+            System.out.println("Cédula: " + cliente.getCedula());
+            System.out.println("Nombre: " + cliente.getNombre());
+        }
+    }
+
+    public void Clientesatendidos(Queue<ObjCliente> catendido){
+        if (catendido.isEmpty()) {
+            System.out.println("No hay clientes atendidos.");
+            return;
+        }
+        System.out.println("Clientes Atendidos:");
+        for (ObjCliente cliente : catendido) {
+            System.out.println("Cédula: " + cliente.getCedula());
+            System.out.println("Nombre: " + cliente.getNombre());
+        }
+    }
+
+    public void MostrarEstadisticasVentas(){
+        System.out.println("=== ESTADÍSTICAS DE VENTAS DEL DÍA ===");
+        System.out.println("Número total de ventas: " + numeroVentas);
+        System.out.println("Total vendido: $" + totalVentasDia);
+        
+        if (numeroVentas > 0) {
+            double promedio = totalVentasDia / numeroVentas;
+            System.out.println("Promedio por venta: $" + String.format("%.2f", promedio));
+        } else {
+            System.out.println("Promedio por venta: $0.00");
+        }
+        
+        System.out.println("Clientes atendidos: " + catendido.size());
+        System.out.println("=======================================");
     }
 
     public int Validarentero(Scanner sc){
@@ -87,7 +144,7 @@ public String Validarstring(Scanner sc){
 }
 
     public boolean Validarrango(int num){
-        if (num < 1 || num > 4) {
+        if (num < 1 || num > 7) {
             return false;
         }
         return true;
@@ -249,7 +306,18 @@ public String Validarstring(Scanner sc){
     }
 
     public void Comprafinalizada(Queue<ObjArticulo> articulos){
-        articulos.clear();
+        // Calcular total de la compra antes de limpiar
+        double totalCompra = calcularValorTotal(articulos);
+        
+        // Actualizar estadísticas del día
+        totalVentasDia += totalCompra;
+        numeroVentas++;
+        
+        // Mostrar información de la venta
         System.out.println("Compra finalizada. Gracias por su compra.");
+        System.out.println("Total de esta compra: $" + totalCompra);
+        
+        // Limpiar carrito
+        articulos.clear();
     }
 }
